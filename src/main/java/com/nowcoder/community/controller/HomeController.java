@@ -8,6 +8,7 @@ import com.nowcoder.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Map;
  * @Date 2023/4/18
  **/
 @Controller
+@CrossOrigin
 public class HomeController {
     private static final String PAGE_INDEX = "/index";
     @Autowired
