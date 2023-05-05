@@ -1,10 +1,15 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.dao.DiscussPostMapper;
+import com.nowcoder.community.entity.Comment;
 import com.nowcoder.community.entity.DiscussPost;
+import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.CommentService;
 import com.nowcoder.community.service.DiscussPostService;
+import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * @Author 不知名网友鑫
@@ -23,13 +28,17 @@ import java.util.Date;
  **/
 @Controller
 @RequestMapping("/discuss")
-public class DiscussPostController {
+public class DiscussPostController implements CommunityConstant {
     @Autowired
     private DiscussPostService discussPostService;
     @Autowired
     private HostHolder hostHolder;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private LikeService likeService;
 
     @RequestMapping(value = "/add" , method = RequestMethod.POST)
     @ResponseBody
@@ -49,14 +58,81 @@ public class DiscussPostController {
         return CommunityUtil.getJSONString(0 , "成功！");
     }
     @RequestMapping(value = "/detail/{id}" , method = RequestMethod.GET)
-    public String getDiscussPost(@PathVariable("id") int id , Model model){
+    public String getDiscussPost(@PathVariable("id") int id , Model model , Page page){
         //查询帖子
         DiscussPost discussPost = discussPostService.selectDiscussPostById(id);
         model.addAttribute("post" , discussPost);
         //用户id处理为用户作者的信息。
-        User user = userService.findUserById(discussPost.getId());
+        User user = userService.findUserById(discussPost.getUserId());
         model.addAttribute("user" , user);
+        //帖子点赞
+        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST , id);
+        model.addAttribute("likeCount" , likeCount);
+        //点赞状态
+        int likeStatus = hostHolder.getUser()== null ? 0:
+                likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_POST, id);
+        model.addAttribute("likeStatus" , likeStatus);
         //帖子回复等相关功能【补充】
+        //每页显示评论数量
+        page.setLimit(5);
+        //设置访问路径
+        page.setPath("/discuss/detail/" + discussPost.getId());
+        //一共有多少评论数据
+        page.setRows(discussPost.getCommentCount());
+        // 评论目标类别为1，表示是帖子的评论
+        List<Comment> commentList = commentService.findCommentByEntity(
+                discussPost.getId(), ENTITY_TYPE_POST, page.getOffset(), page.getLimit());
+        //评论的Vo列表
+        List<Map<String , Object>> commentVoList = new ArrayList<>();
+        if(commentList != null){
+            for(Comment comment : commentList){
+                Map<String , Object> commentVo = new HashMap<>();
+                commentVo.put("comment" , comment);
+                commentVo.put("user" , userService.findUserById(comment.getUserId()));
+                //评论点赞
+                likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT , comment.getId());
+                commentVo.put("likeCount" , likeCount);
+                //点赞状态
+                likeStatus = hostHolder.getUser()== null ? 0:
+                        likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, comment.getId());
+                commentVo.put("likeStatus" , likeStatus);
+                //查询回复
+                List<Comment> replyList = commentService.findCommentByEntity(
+                        comment.getId(), ENTITY_TYPE_COMMENT, 0, Integer.MAX_VALUE);
+                //回复的Vo列表
+                List<Map<String , Object>> replyVoList = new ArrayList<>();
+                if(replyList != null){
+                    for(Comment reply : replyList){
+                        Map<String , Object> replyVo = new HashMap<>();
+                        replyVo.put("reply" ,reply);
+                        replyVo.put("user" , userService.findUserById(reply.getUserId()));
+                        // 判断是否有回复的目标
+                        User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
+                        //回复目标
+                        replyVo.put("target" , target);
+
+                        //回复点赞
+                        likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT , reply.getId());
+                        replyVo.put("likeCount" , likeCount);
+                        //点赞状态
+                        likeStatus = hostHolder.getUser()== null ? 0:
+                                likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, reply.getId());
+                        replyVo.put("likeStatus" , likeStatus);
+
+                        replyVoList.add(replyVo);
+                    }
+                }
+                //将回复放到comment中。表示评论的所有回复。
+                commentVo.put("replys" , replyVoList);
+
+                //  当前评论中存在的回复的数量
+                int replyCount = commentService.findCommentCount(comment.getId(), ENTITY_TYPE_COMMENT);
+                commentVo.put("replyCount" , replyCount);
+                commentVoList.add(commentVo);
+            }
+        }
+       model.addAttribute("comments" , commentVoList);
+
         return "/site/discuss-detail";
     }
 

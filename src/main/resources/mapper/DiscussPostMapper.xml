@@ -38,4 +38,8 @@
         from discuss_post
         where id = #{id};
     </select>
+    <update id="updateCommentCount" parameterType="int">
+        update discuss_post set comment_count = #{commentCount}
+        where id= #{id}
+    </update>
 </mapper>

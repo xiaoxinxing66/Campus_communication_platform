@@ -2,12 +2,17 @@ package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequire;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.FollowService;
+import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,11 +22,15 @@ import javax.servlet.http.HttpServletRequest;
  **/
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
     @Autowired
     private UserService userService;
     @Autowired
     private HostHolder hostHolder;
+    @Autowired
+    private LikeService likeService;
+    @Autowired
+    private FollowService followService;
     @LoginRequire
     @RequestMapping("/setting")
     public String getSetting(){
@@ -42,5 +51,29 @@ public class UserController {
         User user = hostHolder.getUser();
         userService.uploadPassword(user.getId() , users.getPassword());
         return "redirect:/index";
+    }
+    @RequestMapping(value = "/profile/{userId}" , method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId ,Model model){
+        User user = userService.findUserById(userId);
+        if(user == null){
+            throw new RuntimeException("用户不存在");
+        }
+        model.addAttribute("user" , user);
+        //点赞数量
+        long likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount" , likeCount);
+        //关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount" , followeeCount);
+        //粉丝数量【entityId——>userId】
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount" , followerCount);
+        //登录用户是否关注
+        boolean hasFollowed = false;
+        if(hostHolder.getUser()!=null){
+            hasFollowed = followService.isFollowed(hostHolder.getUser().getId() , ENTITY_TYPE_USER , userId);
+        }
+        model.addAttribute("hasFollowed" , hasFollowed);
+        return "/site/profile";
     }
 }
