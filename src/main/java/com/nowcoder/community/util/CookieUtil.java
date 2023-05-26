@@ -14,9 +14,11 @@ public class CookieUtil {
         if(request == null || name == null){
             throw new RuntimeException("参数为空！");
         }
-        for (Cookie cookie : request.getCookies()) {
-            if(cookie != null && cookie.getName().equals(name)){
-                return cookie.getValue();
+        if(request.getCookies() != null){
+            for (Cookie cookie : request.getCookies()) {
+                if(cookie != null && cookie.getName().equals(name)){
+                    return cookie.getValue();
+                }
             }
         }
         return null;

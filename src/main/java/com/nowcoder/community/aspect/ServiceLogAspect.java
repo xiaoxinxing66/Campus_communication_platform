@@ -23,10 +23,10 @@ public class ServiceLogAspect {
     /**
      * 表示Service包下的所有组件的所有方法的所有参数的返回值都要处理。
      */
-    @Pointcut("execution(* com.nowcoder.community.service.*.*(..))")
-    public void pointcut() {
+        @Pointcut("execution(* com.nowcoder.community.service.*.*(..))")
+        public void pointcut() {
 
-    }
+        }
 
     /**
      *在切入点之前记录日志。目标对象调用方法之前，就记录日志。

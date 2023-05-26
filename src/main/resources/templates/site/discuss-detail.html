@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -68,9 +68,10 @@
 					<img src="http://static.nowcoder.com/images/img/icons/ico-discuss.png"/>
 					<span th:utext="${post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</span>
 					<div class="float-right">
-						<button type="button" class="btn btn-danger btn-sm">置顶</button>
-						<button type="button" class="btn btn-danger btn-sm">加精</button>
-						<button type="button" class="btn btn-danger btn-sm">删除</button>
+						<input type="hidden" id="postId" th:value="${post.id}">
+						<button type="button" class="btn btn-danger btn-sm" id="topBtn" th:disabled="${post.type==1}" sec:authorize="hasAnyAuthority('moderator')">置顶</button>
+						<button type="button" class="btn btn-danger btn-sm" id="wonderfulBtn" th:disabled="${post.status==1}" sec:authorize="hasAnyAuthority('moderator')">加精</button>
+						<button type="button" class="btn btn-danger btn-sm" id="deleteBtn" th:disabled="${post.status==2}" sec:authorize="hasAnyAuthority('admin')">删除</button>
 					</div>
 				</h6>
 				<!-- 作者 -->
@@ -89,7 +90,9 @@
 										<b th:text="${likeStatus==1?'已赞':'赞'}">赞</b>
 										<i th:text="${likeCount}">11</i> </a></li>
 								<li class="d-inline ml-2">|</li>
-								<li class="d-inline ml-2"><a href="#replyform" class="text-primary">回帖 7</a></li>
+								<li class="d-inline ml-2"><a href="#replyform" class="text-primary">回帖
+									<i th:text="${post.commentCount}">7 </i>
+									</a></li>
 							</ul>
 						</div>
 					</div>
@@ -167,7 +170,7 @@
 											<li class="d-inline ml-2"><a th:href="|#huifu-${rvoStat.count}|" data-toggle="collapse" class="text-primary">回复</a></li>
 										</ul>
 										<div th:id="|huifu-${rvoStat.count}|" class="mt-4 collapse">
-											<from th:method="post" th:action="@{|/comment/add/${post.id}|}">
+											<form th:method="post" th:action="@{|/comment/add/${post.id}|}">
 											<div>
 												<input type="text" class="input-size" name="content" th:placeholder="|回复${rvo.user.username}|"/>
 												<input type="hidden" name="entityType" value="2">
@@ -175,24 +178,24 @@
 												<input type="hidden" name="targetId" th:value="${rvo.user.id}">
 											</div>
 											<div class="text-right mt-2">
-												<button type="submit" class="btn btn-primary btn-sm" onclick="#">&nbsp;&nbsp;回&nbsp;&nbsp;复&nbsp;&nbsp;</button>
+												<button type="submit" class="btn btn-primary btn-sm" >&nbsp;&nbsp;回&nbsp;&nbsp;复&nbsp;&nbsp;</button>
 											</div>
-											</from>
+											</form>
 										</div>
 									</div>								
 								</li>
 								<!-- 回复输入框 -->
 								<li class="pb-3 pt-3">
-									<from th:method="post" th:action="@{|/comment/add/${post.id}|}">
+									<form th:method="post" th:action="@{|/comment/add/${post.id}|}">
 									<div>
 										<input type="text" class="input-size" name="content" placeholder="请输入你的观点"/>
 										<input type="hidden" name="entityType" value="2">
 										<input type="hidden" name="entityId" th:value="${cvo.comment.id}">
 									</div>
 									<div class="text-right mt-2">
-										<button type="submit" class="btn btn-primary btn-sm" onclick="#">&nbsp;&nbsp;回&nbsp;&nbsp;复&nbsp;&nbsp;</button>
+										<button type="submit" class="btn btn-primary btn-sm" >&nbsp;&nbsp;回&nbsp;&nbsp;复&nbsp;&nbsp;</button>
 									</div>
-									</from>
+									</form>
 								</li>
 							</ul>
 						</div>

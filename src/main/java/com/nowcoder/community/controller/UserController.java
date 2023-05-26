@@ -56,7 +56,9 @@ public class UserController implements CommunityConstant {
     public String getProfilePage(@PathVariable("userId") int userId ,Model model){
         User user = userService.findUserById(userId);
         if(user == null){
-            throw new RuntimeException("用户不存在");
+            //这样处理会直接跳转到500页面
+//            throw new RuntimeException("用户不存在");
+
         }
         model.addAttribute("user" , user);
         //点赞数量

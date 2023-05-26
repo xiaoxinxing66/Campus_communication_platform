@@ -53,9 +53,39 @@ public interface CommunityConstant {
      * 主题：关注
      */
     String TOPIC_FOLLOW = "follow";
+
+    /**
+     * 分享
+     */
+    String TOPIC_SHARE = "share";
+
+    /**
+     * 发帖
+     */
+    String TOPIC_PUBLISH = "publish";
+    /**
+     * 删帖
+     */
+    String TOPIC_DELETE = "delete";
     /**
      * 系统用户ID
      */
     int SYSTEM_USER_ID = 1;
+
+    /**
+     * 普通用户
+     */
+    String AUTHORITY_USER = "user";
+
+    /**
+     * 管理员
+     */
+    String AUTHORITY_ADMIN = "admin";
+    /**
+     * 普通用户
+     */
+    String AUTHORITY_MODERATOR = "moderator";
+
+
 
 }
