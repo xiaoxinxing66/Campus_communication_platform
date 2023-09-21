@@ -3,9 +3,14 @@
 欢迎来到校园交流论坛项目！这个论坛是一个旨在促进校园社交和信息分享的在线平台。无论你是学生、教职工，还是校友，都可以在这里参与讨论、分享知识和建立联系。
 
 ## Major function
-主要功能介绍
 
-
+底层基于`Spring Boot` 。项目可以分为几个模块：
+1. 权限模块【负责用户注册、登录、权限控制】，主要用到的技术是Spring Security、Interceptor拦截器。
+2. 核心模块【首页、帖子、评论、私信、统一异常处理、统一记录日志】，异常处理和记录日志主要运用了Spring AOP的思想，针对项目中的代码进行一个横向的扩展。
+3. 性能模块【点赞、关注、用户缓存、统计数据】，主要使用Redis保存点赞和关注、统计UV、DAU数据。并且缓存用户的信息、验证码、登录凭证到Redis，减小数据库访问压力。
+4. 通知模块【系统通知，点赞、评论、关注】，主要使用Kafka消息队列来发送通知，并且将通知转换为Message存到表中，使用id判重来解决kafka重复发送数据的问题。
+项目介绍：项目基于Spring Boot，大体可以分为四个模块，权限、核心、性能、通知。
+权限模块比如用户的登录注册，权限控制；核心模块比如首页，帖子，统一异常处理，统一记录日志；性能模块基于Redis包括点赞，关注，统计数据；通知模块基于Kafka，使用Kafka来发送通知。
 
 ## Quick start
 
@@ -21,3 +26,5 @@
 
 
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=xiaoxinxing66)](https://github.com/xiaoxinxing66/Campus_communication_platform)
+
+如果您对项目有任何疑问或建议，请随时联系我们。感谢您的支持和参与！
