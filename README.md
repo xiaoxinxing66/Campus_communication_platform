@@ -1,4 +1,5 @@
 # Campus_communication_platform
+![109313046_0_final](https://github.com/xiaoxinxing66/Campus_communication_platform/assets/93857716/e4d31f0a-d9f6-44c5-9d08-75cc67fced7a)
 
 欢迎来到校园交流论坛项目！这个论坛是一个旨在促进校园社交和信息分享的在线平台。无论你是学生、教职工，还是校友，都可以在这里参与讨论、分享知识和建立联系。
 
